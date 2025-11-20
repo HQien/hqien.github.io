@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>初中生物VR实验 - 鱼类鱼鳍功能探究（仅自定义模型完整版）</title>
+    <title>初中生物VR实验 - 鱼类鱼鳍功能探究（最终版）</title>
     <style>
         body { margin: 0; overflow: hidden; background: #0a1929; }
-        #title { position: absolute; top: 20px; width: 100%; text-align: center; color: #fff; font-family: "Microsoft YaHei", sans-serif; font-size: 18px; z-index: 10; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        #controls { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 10; flex-wrap: wrap; justify-content: center; }
-        .fin-btn { padding: 12px 20px; border: none; border-radius: 16px; background: #4fc3f7; color: #0a1929; font-weight: 600; font-size: 15px; font-family: "Microsoft YaHei", sans-serif; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4); transition: all 0.3s; }
+        #title { position: absolute; top: 20px; width: 100%; text-align: center; color: #fff; font-family: "Microsoft YaHei", sans-serif; font-size: 24px; z-index: 10; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        #controls { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 10; flex-wrap: wrap; justify-content: center; }
+        .fin-btn { padding: 12px 20px; border: none; border-radius: 16px; background: #4fc3f7; color: #0a1929; font-weight: 600; font-size: 16px; font-family: "Microsoft YaHei", sans-serif; cursor: pointer; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4); transition: all 0.3s; }
         .fin-btn:hover { background: #29b6f6; transform: translateY(-2px); }
         .fin-btn.active { background: #ff5722; color: white; box-shadow: 0 4px 12px rgba(255, 87, 34, 0.6); }
-        #model-upload { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; color: white; font-size: 14px; font-family: "Microsoft YaHei", sans-serif; }
-        #upload-btn { padding: 8px 16px; background: #81c784; border: none; border-radius: 8px; color: #0a1929; font-weight: 600; cursor: pointer; margin-top: 5px; }
-        #status { position: absolute; top: 60px; width: 100%; text-align: center; color: #ffeb3b; font-size: 16px; font-family: "Microsoft YaHei", sans-serif; z-index: 10; font-weight: 600; }
-        #fin-info { position: absolute; top: 90px; width: 100%; text-align: center; color: #b3e5fc; font-size: 14px; font-family: "Microsoft YaHei", sans-serif; z-index: 10; }
+        #status { position: absolute; top: 70px; width: 100%; text-align: center; color: #ffeb3b; font-size: 18px; font-family: "Microsoft YaHei", sans-serif; z-index: 10; font-weight: 600; }
+        #fin-info { position: absolute; top: 110px; width: 100%; text-align: center; color: #b3e5fc; font-size: 16px; font-family: "Microsoft YaHei", sans-serif; z-index: 10; max-width: 800px; margin: 0 auto; }
         canvas { display: block; }
-        .conclusion-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 25, 41, 0.95); border: 2px solid #4fc3f7; border-radius: 12px; padding: 25px; width: 80%; max-width: 500px; color: white; font-family: "Microsoft YaHei", sans-serif; z-index: 100; display: none; }
-        .conclusion-modal h3 { color: #4fc3f7; margin-top: 0; text-align: center; }
-        .conclusion-modal p { line-height: 1.6; }
-        .conclusion-modal button { display: block; margin: 20px auto 0; padding: 10px 20px; background: #ff5722; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; }
-        .fin-tip { position: absolute; background: rgba(255, 87, 34, 0.9); color: white; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-family: "Microsoft YaHei", sans-serif; z-index: 20; display: none; pointer-events: none; }
+        .conclusion-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 25, 41, 0.95); border: 2px solid #4fc3f7; border-radius: 12px; padding: 30px; width: 90%; max-width: 600px; color: white; font-family: "Microsoft YaHei", sans-serif; z-index: 100; display: none; }
+        .conclusion-modal h3 { color: #4fc3f7; margin-top: 0; text-align: center; font-size: 24px; }
+        .conclusion-modal p { line-height: 1.8; font-size: 16px; }
+        .conclusion-modal button { display: block; margin: 20px auto 0; padding: 12px 24px; background: #ff5722; border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        .conclusion-modal button:hover { background: #e64a19; }
+        .fin-tip { position: absolute; background: rgba(255, 87, 34, 0.9); color: white; padding: 10px 20px; border-radius: 8px; font-size: 16px; font-family: "Microsoft YaHei", sans-serif; z-index: 20; display: none; pointer-events: none; border: 1px solid white; }
+        .watermark { position: absolute; bottom: 20px; right: 20px; color: rgba(255,255,255,0.3); font-size: 12px; font-family: monospace; z-index: 5; }
     </style>
 </head>
 <body>
     <div id="title">初中生物VR实验 - 鱼类鱼鳍功能探究</div>
-    <div id="status">请上传鱼类3D模型（GLB/GLTF格式，建议压缩至50MB内）</div>
-    <div id="fin-info">鱼鳍功能：尾鳍（前进动力+方向）、胸鳍（平衡+转向）、背鳍（保持直立）</div>
+    <div id="status">正在加载模型...</div>
+    <div id="fin-info">
+        鱼鳍功能说明：<br>
+        尾鳍：提供前进动力并控制方向 | 胸鳍：维持身体平衡并辅助转向 | 背鳍：保持身体直立防止侧翻
+    </div>
     <div id="controls">
         <button class="fin-btn" id="toggleTail" disabled>隐藏尾鳍</button>
         <button class="fin-btn" id="togglePectoral" disabled>隐藏胸鳍</button>
@@ -34,28 +37,25 @@
         <button class="fin-btn" id="resetAll" disabled>重置所有鱼鳍</button>
         <button class="fin-btn" id="show-conclusion" disabled>查看实验结论</button>
     </div>
-    <div id="model-upload">
-        <input type="file" id="file-input" accept=".glb,.gltf" style="display:none">
-        <button id="upload-btn">选择本地GLB/GLTF模型文件</button>
-    </div>
     <canvas id="canvas"></canvas>
     <div class="conclusion-modal" id="conclusionModal">
         <h3>鱼类鱼鳍功能实验结论</h3>
-        <p>1. 尾鳍：鱼类前进的主要动力来源，同时控制运动方向，失去尾鳍后<span style="color:#ff5722">几乎无法前进，只能原地挣扎</span>。</p>
-        <p>2. 胸鳍：主要负责保持身体平衡，辅助转向，失去胸鳍后<span style="color:#ff5722">剧烈左右摇晃，无法稳定方向</span>。</p>
-        <p>3. 背鳍：维持身体直立状态，防止侧翻，失去背鳍后<span style="color:#ff5722">身体翻滚倾斜，无法正常游动</span>。</p>
-        <p>结论：鱼鳍的协同作用是鱼类在水中灵活运动、保持平衡的关键。</p>
-        <button id="close-conclusion">关闭</button>
+        <p>1. <strong>尾鳍</strong>：鱼类前进的主要动力来源，同时控制运动方向。失去尾鳍后，鱼几乎无法前进，只能原地挣扎摆动。</p>
+        <p>2. <strong>胸鳍</strong>：主要负责保持身体平衡，辅助转向。失去胸鳍后，鱼会剧烈左右摇晃，难以稳定方向，甚至会侧翻。</p>
+        <p>3. <strong>背鳍</strong>：维持身体直立状态，防止侧翻。失去背鳍后，鱼的身体会失去平衡，出现翻滚现象，无法正常游动。</p>
+        <p><strong>总结</strong>：鱼鳍的协同作用是鱼类在水中灵活运动、保持平衡的关键。不同鱼鳍各司其职，共同完成游泳、转向和平衡等复杂动作。</p>
+        <button id="close-conclusion">关闭结论</button>
     </div>
     <div class="fin-tip" id="tailTip">⚠️ 尾鳍缺失：失去前进动力！</div>
     <div class="fin-tip" id="pectoralTip">⚠️ 胸鳍缺失：平衡失控！</div>
     <div class="fin-tip" id="dorsalTip">⚠️ 背鳍缺失：身体翻滚！</div>
+    <div class="watermark">© 2025 豆包编程助手</div>
 
     <script type="importmap">
     {
         "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/"
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
         }
     }
     </script>
@@ -71,71 +71,78 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.xr.enabled = true;
-        const vrButton = VRButton.createButton(renderer);
-        if (!document.body.contains(vrButton)) document.body.appendChild(vrButton);
+        document.body.appendChild(VRButton.createButton(renderer));
         
         const controls = new OrbitControls(camera, renderer.domElement);
-        camera.position.set(0, 1, 8);
+        camera.position.set(0, 1.5, 8);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.enablePan = false;
+        controls.maxPolarAngle = Math.PI / 2;
+        controls.minDistance = 3;
+        controls.maxDistance = 15;
 
         scene.background = new THREE.Color(0x0a1929);
         scene.fog = new THREE.Fog(0x0a1929, 10, 50);
+        
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        
         const directionalLight = new THREE.DirectionalLight(0x4fc3f7, 1.0);
-        directionalLight.position.set(10, 10, 10);
-        scene.add(ambientLight, directionalLight);
-
+        directionalLight.position.set(10, 15, 10);
+        scene.add(directionalLight);
+        
         const waterGeometry = new THREE.PlaneGeometry(100, 100);
-        const waterMaterial = new THREE.MeshPhongMaterial({ color: 0x1976d2, transparent: true, opacity: 0.2, wireframe: false });
+        const waterMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x1976d2, 
+            transparent: true, 
+            opacity: 0.3, 
+            wireframe: false,
+            shininess: 100
+        });
         const water = new THREE.Mesh(waterGeometry, waterMaterial);
         water.rotation.x = -Math.PI / 2;
         water.position.y = -2;
         scene.add(water);
 
-        // 核心变量
         let fishModel, finGroups = { tail: [], pectoral: [], dorsal: [] };
         const finStates = { tail: true, pectoral: true, dorsal: true };
-        let animationParams = { speed: 1, turnAmount: 0, rollIntensity: 0, shakeIntensity: 0, struggleIntensity: 0 };
+        let animationParams = { 
+            speed: 1, 
+            turnAmount: 0.2, 
+            rollIntensity: 0, 
+            shakeIntensity: 0, 
+            struggleIntensity: 0 
+        };
         const statusDiv = document.getElementById('status');
         const conclusionModal = document.getElementById('conclusionModal');
-        const finTips = { tail: document.getElementById('tailTip'), pectoral: document.getElementById('pectoralTip'), dorsal: document.getElementById('dorsalTip') };
-        let customFishParts = { body: null, tail: null, pectoralLeft: null, pectoralRight: null, dorsal: null };
+        const finTips = { 
+            tail: document.getElementById('tailTip'), 
+            pectoral: document.getElementById('pectoralTip'), 
+            dorsal: document.getElementById('dorsalTip') 
+        };
+        let customFishParts = { 
+            body: null, 
+            tail: null, 
+            pectoralLeft: null, 
+            pectoralRight: null, 
+            dorsal: null 
+        };
 
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/libs/draco/gltf/');
+        dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/');
         dracoLoader.setDecoderConfig({ type: 'js' });
 
-        // 事件绑定 - 修复上传按钮点击事件
-        document.getElementById('upload-btn').addEventListener('click', () => {
-            document.getElementById('file-input').click();
-        });
+        // ====================== 默认模型配置 ======================
+        // 替换成你的模型链接（建议将模型和代码一起上传到GitHub，使用相对路径）
+        const DEFAULT_MODEL_URL = "goldfish.glb"; // 例如："https://your-username.github.io/your-repo/fish-model.glb"
+        const DEFAULT_MODEL_NAME = "鲫鱼模型";
+        // ==========================================================
 
-        // 修复文件选择事件处理
-        document.getElementById('file-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // 验证文件类型
-            const fileExt = file.name.split('.').pop().toLowerCase();
-            if (!['glb', 'gltf'].includes(fileExt)) {
-                statusDiv.textContent = "请选择GLB或GLTF格式的模型文件！";
-                return;
-            }
-
-            if (file.size > 50 * 1024 * 1024) {
-                statusDiv.textContent = "文件过大！请压缩至50MB内再上传";
-                return;
-            }
-
-            statusDiv.textContent = `正在加载模型: ${file.name}...`;
-            const modelUrl = URL.createObjectURL(file);
-            loadCustomModel(modelUrl, file.name);
-
-            // 清空文件输入，允许重复选择同一文件
-            e.target.value = '';
+        window.addEventListener('load', () => {
+            loadModel(DEFAULT_MODEL_URL, DEFAULT_MODEL_NAME);
         });
 
         document.getElementById('toggleTail').addEventListener('click', () => toggleFin('tail', 'toggleTail', '隐藏尾鳍'));
@@ -145,13 +152,11 @@
         document.getElementById('show-conclusion').addEventListener('click', () => conclusionModal.style.display = 'block');
         document.getElementById('close-conclusion').addEventListener('click', () => conclusionModal.style.display = 'none');
 
-        // 加载自定义GLB模型并添加动画
-        function loadCustomModel(url, fileName) {
+        function loadModel(url, fileName) {
             const loader = new GLTFLoader();
             loader.setDRACOLoader(dracoLoader);
             
             loader.load(url, (gltf) => {
-                // 清理旧模型
                 if (fishModel) scene.remove(fishModel);
                 finGroups = { tail: [], pectoral: [], dorsal: [] };
                 customFishParts = { body: null, tail: null, pectoralLeft: null, pectoralRight: null, dorsal: null };
@@ -159,17 +164,14 @@
                 fishModel = gltf.scene;
                 scene.add(fishModel);
 
-                // 自动识别模型部件
-                findCustomFishParts(fishModel);
+                findFishParts(fishModel);
 
-                // 自动缩放和定位
                 const box = new THREE.Box3().setFromObject(fishModel);
                 const size = box.getSize(new THREE.Vector3());
                 const scale = 5 / Math.max(size.x, size.y, size.z);
                 fishModel.scale.set(scale, scale, scale);
                 fishModel.position.set(0, -1, -20);
 
-                // 提示识别结果
                 const detectedFins = [];
                 if (finGroups.tail.length > 0) detectedFins.push('尾鳍');
                 if (finGroups.pectoral.length > 0) detectedFins.push('胸鳍');
@@ -181,29 +183,25 @@
                     statusDiv.textContent = `模型 "${fileName}" 加载成功！未识别到鱼鳍部件`;
                 }
 
-                // 启用所有按钮
                 document.querySelectorAll('.fin-btn').forEach(btn => btn.disabled = false);
                 updateAnimationParams();
 
-                URL.revokeObjectURL(url);
             }, (xhr) => {
                 const progress = Math.round((xhr.loaded / xhr.total) * 100);
                 statusDiv.textContent = `模型加载中: ${progress}%`;
             }, (error) => {
                 console.error('模型加载失败:', error);
-                statusDiv.textContent = `模型加载失败！请检查文件是否损坏`;
-                URL.revokeObjectURL(url);
+                statusDiv.textContent = `模型加载失败！请检查网络连接`;
             });
         }
         
-        // 识别自定义模型的身体和鱼鳍
-        function findCustomFishParts(model) {
+        function findFishParts(model) {
             const partNames = {
-                body: ['body', 'torso', '鱼身', '身体', '躯干'],
-                tail: ['tail', 'fin_tail', '尾鳍', '尾巴', '尾'],
-                pectoralLeft: ['pectoral_l', 'left_pectoral', '胸鳍左', '左胸鳍'],
-                pectoralRight: ['pectoral_r', 'right_pectoral', '胸鳍右', '右胸鳍'],
-                dorsal: ['dorsal', 'fin_dorsal', '背鳍', '背']
+                body: ['body', 'torso', '鱼身', '身体', '躯干', 'fish_body'],
+                tail: ['tail', 'fin_tail', '尾鳍', '尾巴', '尾', 'fish_tail'],
+                pectoralLeft: ['pectoral_l', 'left_pectoral', '胸鳍左', '左胸鳍', 'fish_pectoral_left'],
+                pectoralRight: ['pectoral_r', 'right_pectoral', '胸鳍右', '右胸鳍', 'fish_pectoral_right'],
+                dorsal: ['dorsal', 'fin_dorsal', '背鳍', '背', 'fish_dorsal']
             };
 
             model.traverse((child) => {
@@ -231,23 +229,29 @@
             }
         }
 
-        // 切换鱼鳍显示/隐藏
         function toggleFin(type, btnId, text) {
             finStates[type] = !finStates[type];
             if (finGroups[type].length > 0) {
-                finGroups[type].forEach(fin => fin.visible = finStates[type]);
+                finGroups[type].forEach(fin => {
+                    fin.visible = finStates[type];
+                    if (finStates[type]) {
+                        // 恢复鱼鳍时添加过渡动画
+                        fin.scale.set(0, 0, 0);
+                        setTimeout(() => {
+                            fin.scale.set(1, 1, 1);
+                        }, 50);
+                    }
+                });
                 statusDiv.textContent = `${finStates[type] ? '显示' : '隐藏'}${text.replace('隐藏', '')}`;
+                finTips[type].style.display = finStates[type] ? 'none' : 'block';
             } else {
                 statusDiv.textContent = `未识别到"${text.replace('隐藏', '')}"`;
             }
             updateButton(btnId, text, finStates[type]);
             updateAnimationParams();
-            updateFinTips();
         }
         
-        // 重置所有鱼鳍
         function resetAllFins() {
-            // 恢复所有鱼鳍显示
             for (const type in finStates) {
                 finStates[type] = true;
                 if (finGroups[type]) {
@@ -261,76 +265,77 @@
                         }
                     });
                 }
+                finTips[type].style.display = 'none';
             }
             
-            // 重置鱼的整体状态
             if (fishModel) {
                 fishModel.rotation.set(0, 0, 0);
-                animationParams.speed = 1;
-                animationParams.struggleIntensity = 0;
-                animationParams.shakeIntensity = 0;
-                animationParams.rollIntensity = 0;
+                fishModel.position.set(0, -1, -20);
+                animationParams = { 
+                    speed: 1, 
+                    turnAmount: 0.2, 
+                    rollIntensity: 0, 
+                    shakeIntensity: 0, 
+                    struggleIntensity: 0 
+                };
             }
             
-            // 重置按钮状态
             document.getElementById('toggleTail').textContent = '隐藏尾鳍';
             document.getElementById('togglePectoral').textContent = '隐藏胸鳍';
             document.getElementById('toggleDorsal').textContent = '隐藏背鳍';
             document.querySelectorAll('.fin-btn').forEach(btn => btn.classList.remove('active'));
             
-            // 隐藏提示框
-            updateFinTips();
-            
             statusDiv.textContent = "所有鱼鳍已重置";
         }
 
-        // 更新按钮状态
         function updateButton(btnId, text, isVisible) {
             const btn = document.getElementById(btnId);
             btn.textContent = isVisible ? text : text.replace('隐藏', '显示');
             btn.classList.toggle('active', !isVisible);
         }
         
-        // 更新动画参数
         function updateAnimationParams() {
             animationParams.speed = finStates.tail ? 1 : 0.1;
-            animationParams.struggleIntensity = finStates.tail ? 0 : 0.05;
+            animationParams.struggleIntensity = finStates.tail ? 0 : 0.08;
             animationParams.turnAmount = finStates.pectoral ? 0.2 : 0.05;
-            animationParams.shakeIntensity = finStates.pectoral ? 0 : 0.15;
-            animationParams.rollIntensity = finStates.dorsal ? 0 : 0.3;
+            animationParams.shakeIntensity = finStates.pectoral ? 0 : 0.2;
+            animationParams.rollIntensity = finStates.dorsal ? 0 : 0.4;
         }
         
-        // 更新鱼鳍缺失提示框
         function updateFinTips() {
             for (const type in finTips) {
-                finTips[type].style.display = finStates[type] === false ? 'block' : 'none';
+                if (!finStates[type] && fishModel) {
+                    const tip = finTips[type];
+                    const vector = new THREE.Vector3(fishModel.position.x, fishModel.position.y + 2, fishModel.position.z);
+                    vector.project(camera);
+                    
+                    vector.x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                    vector.y = -(vector.y * 0.5 - 0.5) * window.innerHeight;
+                    
+                    tip.style.left = `${vector.x - tip.offsetWidth / 2}px`;
+                    tip.style.top = `${vector.y - tip.offsetHeight - 30}px`;
+                }
             }
         }
 
-        // 动画循环
         function animate() {
             requestAnimationFrame(animate);
             
             if (fishModel) {
                 const time = Date.now() * 0.001;
                 
-                // 沿Z轴正方向前进
                 fishModel.position.z += 0.015 * animationParams.speed;
 
-                // 通用摆动动画
                 const baseSwing = Math.sin(time * 8) * 0.05;
                 
-                // 身体弯曲动画
                 if (customFishParts.body) {
                     customFishParts.body.rotation.y = baseSwing * animationParams.speed;
                 }
 
-                // 尾鳍摆动动画
                 if (customFishParts.tail && finStates.tail && customFishParts.tail.visible) {
                     customFishParts.tail.rotation.y = Math.sin(time * 10) * 0.3 * animationParams.speed;
                 }
 
-                // 胸鳍摆动动画
                 if (customFishParts.pectoralLeft && finStates.pectoral && customFishParts.pectoralLeft.visible) {
                     customFishParts.pectoralLeft.rotation.x = Math.sin(time * -7 + Math.PI/2) * 0.2;
                 }
@@ -338,7 +343,10 @@
                     customFishParts.pectoralRight.rotation.x = Math.sin(time * -7 - Math.PI/2) * 0.2;
                 }
                 
-                // 异常状态动画
+                if (customFishParts.dorsal && finStates.dorsal && customFishParts.dorsal.visible) {
+                    customFishParts.dorsal.rotation.z = Math.sin(time * 5) * 0.05;
+                }
+                
                 if (animationParams.struggleIntensity > 0 && !finStates.tail) {
                     fishModel.rotation.y += (Math.random() - 0.5) * animationParams.struggleIntensity;
                 }
@@ -349,7 +357,6 @@
                     fishModel.rotation.x = Math.sin(time * 0.4) * animationParams.rollIntensity;
                 }
                 
-                // 边界检查和重置
                 if (fishModel.position.z > 20) {
                     fishModel.position.z = -20;
                     fishModel.position.x = (Math.random() - 0.5) * 5;
@@ -357,27 +364,19 @@
                     if (customFishParts.body) customFishParts.body.rotation.set(0, 0, 0);
                 }
                 
-                // 更新提示框位置
-                for (const type in finTips) {
-                    if (finStates[type] === false) {
-                        const tip = finTips[type];
-                        const vector = new THREE.Vector3(fishModel.position.x, fishModel.position.y + 1.5, fishModel.position.z);
-                        vector.project(camera);
-                        vector.x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-                        vector.y = -(vector.y * 0.5 - 0.5) * window.innerHeight;
-                        tip.style.left = `${vector.x - tip.offsetWidth / 2}px`;
-                        tip.style.top = `${vector.y - tip.offsetHeight - 20}px`;
-                    }
-                }
+                updateFinTips();
             }
             
-            if (water) water.rotation.z += 0.002;
+            if (water) {
+                water.rotation.z += 0.002;
+                water.material.opacity = 0.3 + Math.sin(Date.now() * 0.001) * 0.05;
+            }
+            
             controls.update();
             renderer.render(scene, camera);
         }
         animate();
 
-        // 窗口大小适配
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
