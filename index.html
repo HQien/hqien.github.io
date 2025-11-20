@@ -62,7 +62,8 @@
     <div class="fin-tip" id="tailTip">⚠️ 尾鳍已固定：失去前进动力！</div>
     <div class="fin-tip" id="pectoralTip">⚠️ 胸鳍已固定：平衡失控！</div>
     <div class="fin-tip" id="dorsalTip">⚠️ 背鳍已固定：身体翻滚！</div>
-  
+
+
     <script type="importmap">
     {
         "imports": {
@@ -150,7 +151,7 @@
         // ====================== 默认模型配置 ======================
         // 替换成你的模型链接（建议将模型和代码一起上传到GitHub，使用相对路径）
         const DEFAULT_MODEL_URL = "https://shengwu1909.oss-cn-shenzhen.aliyuncs.com/goldfish.glb"; // 例如："https://your-username.github.io/your-repo/fish-model.glb"
-        const DEFAULT_MODEL_NAME = "金鱼模型";
+        const DEFAULT_MODEL_NAME = "鲫鱼模型";
         // ==========================================================
 
         window.addEventListener('load', () => {
@@ -233,9 +234,10 @@
             finStates[type] = !wasFixed; // 切换状态
 
             if (wasFixed) {
-                // --- 主要修改点：松开鱼鳍时，重置鱼的旋转角度 ---
+                // 松开鱼鳍时，重置鱼的旋转角度以恢复平衡
                 if (fishModel) {
-                    fishModel.rotation.set(0, fishModel.rotation.y, 0); // 重置俯仰和翻滚，保持航向
+                    // 重置俯仰 (x轴) 和翻滚 (z轴)，但保持航向 (y轴)，这样更自然
+                    fishModel.rotation.set(0, fishModel.rotation.y, 0); 
                 }
                 // 松开鱼鳍：恢复活动，恢复颜色
                 if (customFishParts[type]) {
@@ -255,18 +257,18 @@
                 statusDiv.textContent = `已松开${text.replace('固定', '')}`;
                 finTips[type].style.display = 'none';
             } else {
-                // 固定鱼鳍：停止活动，添加视觉效果
+                // 固定鱼鳍：停止活动，添加视觉效果（变灰模拟遮盖）
                 if (customFishParts[type]) {
-                    customFishParts[type].material.color.set(0x888888);
+                    customFishParts[type].material.color.set(0x888888); // 鱼鳍变灰
                     customFishParts[type].userData.fixedRotation = customFishParts[type].rotation.clone();
                 }
                 if (type === 'pectoral') {
                     if (customFishParts.pectoralLeft) {
-                        customFishParts.pectoralLeft.material.color.set(0x888888);
+                        customFishParts.pectoralLeft.material.color.set(0x888888); // 鱼鳍变灰
                         customFishParts.pectoralLeft.userData.fixedRotation = customFishParts.pectoralLeft.rotation.clone();
                     }
                     if (customFishParts.pectoralRight) {
-                        customFishParts.pectoralRight.material.color.set(0x888888);
+                        customFishParts.pectoralRight.material.color.set(0x888888); // 鱼鳍变灰
                         customFishParts.pectoralRight.userData.fixedRotation = customFishParts.pectoralRight.rotation.clone();
                     }
                 }
@@ -336,13 +338,16 @@
         
         // 根据鱼鳍固定状态更新动画参数
         function updateAnimationParams() {
+            // 尾鳍控制速度
             animationParams.speed = finStates.tail ? 0.1 : 1;
             animationParams.struggleIntensity = finStates.tail ? 0.08 : 0;
             
+            // 胸鳍控制平衡
             animationParams.turnAmount = finStates.pectoral ? 0.05 : 0.2;
             animationParams.shakeIntensity = finStates.pectoral ? 0.2 : 0;
             
-            animationParams.rollIntensity = finStates.dorsal ? 0.4 : 0;
+            // 背鳍控制翻滚
+            animationParams.rollIntensity = finStates.dorsal ? 0.5 : 0;
         }
         
         // 更新鱼鳍提示框位置
@@ -369,8 +374,11 @@
             if (fishModel) {
                 const time = Date.now() * 0.001;
                 
+                // 控制鱼的游动速度
+                // 0.015 是基础速度，可以直接修改它来调整整体游速
                 fishModel.position.z += 0.025 * animationParams.speed;
 
+                // 身体摆动（基础动画）
                 const baseSwing = Math.sin(time * 8) * 0.05;
                 if (customFishParts.body) {
                     customFishParts.body.rotation.y = baseSwing * animationParams.speed;
@@ -403,7 +411,7 @@
                     customFishParts.dorsal.rotation.copy(customFishParts.dorsal.userData.fixedRotation);
                 }
                 
-                // 异常状态动画
+                // 异常状态动画（失衡效果）
                 if (animationParams.struggleIntensity > 0 && finStates.tail) {
                     fishModel.rotation.y += (Math.random() - 0.5) * animationParams.struggleIntensity;
                 }
@@ -425,6 +433,7 @@
                 updateFinTips();
             }
             
+            // 水面波动效果
             if (water) {
                 water.rotation.z += 0.002;
                 water.material.opacity = 0.3 + Math.sin(Date.now() * 0.001) * 0.05;
