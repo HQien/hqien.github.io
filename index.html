@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>初中生物VR实验 - 鱼类鱼鳍功能探究（测试版）</title>
+    <title>初中生物VR实验 - 鱼类鱼鳍功能探究（最终版）</title>
     <style>
         body { margin: 0; overflow: hidden; background: #0a1929; }
         #title { position: absolute; top: 20px; width: 100%; text-align: center; color: #fff; font-family: "Microsoft YaHei", sans-serif; font-size: 24px; z-index: 10; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
@@ -12,7 +12,20 @@
         .fin-btn:hover { background: #29b6f6; transform: translateY(-2px); }
         .fin-btn.active { background: #ff5722; color: white; box-shadow: 0 4px 12px rgba(255, 87, 34, 0.6); }
         #status { position: absolute; top: 70px; width: 100%; text-align: center; color: #ffeb3b; font-size: 18px; font-family: "Microsoft YaHei", sans-serif; z-index: 10; font-weight: 600; }
-        #fin-info { position: absolute; top: 110px; width: 100%; text-align: center; color: #b3e5fc; font-size: 16px; font-family: "Microsoft YaHei", sans-serif; z-index: 10; max-width: 800px; margin: 0 auto; }
+        #fin-info { 
+            position: absolute; 
+            top: 110px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            color: #b3e5fc; 
+            font-size: 16px; 
+            font-family: "Microsoft YaHei", sans-serif; 
+            z-index: 10; 
+            max-width: 800px; 
+            width: 90%; 
+            text-align: center; 
+            line-height: 1.8; 
+        }
         canvas { display: block; }
         .conclusion-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 25, 41, 0.95); border: 2px solid #4fc3f7; border-radius: 12px; padding: 30px; width: 90%; max-width: 600px; color: white; font-family: "Microsoft YaHei", sans-serif; z-index: 100; display: none; }
         .conclusion-modal h3 { color: #4fc3f7; margin-top: 0; text-align: center; font-size: 24px; }
@@ -24,33 +37,32 @@
     </style>
 </head>
 <body>
-    <div id="title">初中生物VR实验 - 鱼类鱼鳍功能探究</div>
+    <div id="title">初中生物VR实验 - 鱼类鱼鳍功能探究（最终版）</div>
     <div id="status">正在加载模型...</div>
     <div id="fin-info">
         鱼鳍功能说明：<br>
         尾鳍：提供前进动力并控制方向 | 胸鳍：维持身体平衡并辅助转向 | 背鳍：保持身体直立防止侧翻
     </div>
     <div id="controls">
-        <button class="fin-btn" id="toggleTail" disabled>隐藏尾鳍</button>
-        <button class="fin-btn" id="togglePectoral" disabled>隐藏胸鳍</button>
-        <button class="fin-btn" id="toggleDorsal" disabled>隐藏背鳍</button>
+        <button class="fin-btn" id="toggleTail" disabled>固定尾鳍</button>
+        <button class="fin-btn" id="togglePectoral" disabled>固定胸鳍</button>
+        <button class="fin-btn" id="toggleDorsal" disabled>固定背鳍</button>
         <button class="fin-btn" id="resetAll" disabled>重置所有鱼鳍</button>
         <button class="fin-btn" id="show-conclusion" disabled>查看实验结论</button>
     </div>
     <canvas id="canvas"></canvas>
     <div class="conclusion-modal" id="conclusionModal">
         <h3>鱼类鱼鳍功能实验结论</h3>
-        <p>1. <strong>尾鳍</strong>：鱼类前进的主要动力来源，同时控制运动方向。失去尾鳍后，鱼几乎无法前进，只能原地挣扎摆动。</p>
-        <p>2. <strong>胸鳍</strong>：主要负责保持身体平衡，辅助转向。失去胸鳍后，鱼会剧烈左右摇晃，难以稳定方向，甚至会侧翻。</p>
-        <p>3. <strong>背鳍</strong>：维持身体直立状态，防止侧翻。失去背鳍后，鱼的身体会失去平衡，出现翻滚现象，无法正常游动。</p>
+        <p>1. <strong>尾鳍</strong>：鱼类前进的主要动力来源，同时控制运动方向。固定尾鳍后，鱼几乎无法前进，只能原地挣扎摆动。</p>
+        <p>2. <strong>胸鳍</strong>：主要负责保持身体平衡，辅助转向。固定胸鳍后，鱼会剧烈左右摇晃，难以稳定方向，甚至会侧翻。</p>
+        <p>3. <strong>背鳍</strong>：维持身体直立状态，防止侧翻。固定背鳍后，鱼的身体会失去平衡，出现翻滚现象，无法正常游动。</p>
         <p><strong>总结</strong>：鱼鳍的协同作用是鱼类在水中灵活运动、保持平衡的关键。不同鱼鳍各司其职，共同完成游泳、转向和平衡等复杂动作。</p>
         <button id="close-conclusion">关闭结论</button>
     </div>
-    <div class="fin-tip" id="tailTip">⚠️ 尾鳍缺失：失去前进动力！</div>
-    <div class="fin-tip" id="pectoralTip">⚠️ 胸鳍缺失：平衡失控！</div>
-    <div class="fin-tip" id="dorsalTip">⚠️ 背鳍缺失：身体翻滚！</div>
-    <div class="watermark">© 2025 豆包编程助手</div>
-
+    <div class="fin-tip" id="tailTip">⚠️ 尾鳍已固定：失去前进动力！</div>
+    <div class="fin-tip" id="pectoralTip">⚠️ 胸鳍已固定：平衡失控！</div>
+    <div class="fin-tip" id="dorsalTip">⚠️ 背鳍已固定：身体翻滚！</div>
+  
     <script type="importmap">
     {
         "imports": {
@@ -107,8 +119,8 @@
         water.position.y = -2;
         scene.add(water);
 
-        let fishModel, finGroups = { tail: [], pectoral: [], dorsal: [] };
-        const finStates = { tail: true, pectoral: true, dorsal: true };
+        let fishModel;
+        const finStates = { tail: false, pectoral: false, dorsal: false }; // false = 未固定（正常活动），true = 已固定（无法活动）
         let animationParams = { 
             speed: 1, 
             turnAmount: 0.2, 
@@ -137,7 +149,7 @@
 
         // ====================== 默认模型配置 ======================
         // 替换成你的模型链接（建议将模型和代码一起上传到GitHub，使用相对路径）
-        const DEFAULT_MODEL_URL = "goldfish.glb"; // 例如："https://your-username.github.io/your-repo/fish-model.glb"
+        const DEFAULT_MODEL_URL = "https://shengwu1909.oss-cn-shenzhen.aliyuncs.com/goldfish.glb"; // 例如："https://your-username.github.io/your-repo/fish-model.glb"
         const DEFAULT_MODEL_NAME = "鲫鱼模型";
         // ==========================================================
 
@@ -145,9 +157,9 @@
             loadModel(DEFAULT_MODEL_URL, DEFAULT_MODEL_NAME);
         });
 
-        document.getElementById('toggleTail').addEventListener('click', () => toggleFin('tail', 'toggleTail', '隐藏尾鳍'));
-        document.getElementById('togglePectoral').addEventListener('click', () => toggleFin('pectoral', 'togglePectoral', '隐藏胸鳍'));
-        document.getElementById('toggleDorsal').addEventListener('click', () => toggleFin('dorsal', 'toggleDorsal', '隐藏背鳍'));
+        document.getElementById('toggleTail').addEventListener('click', () => toggleFin('tail', 'toggleTail', '固定尾鳍'));
+        document.getElementById('togglePectoral').addEventListener('click', () => toggleFin('pectoral', 'togglePectoral', '固定胸鳍'));
+        document.getElementById('toggleDorsal').addEventListener('click', () => toggleFin('dorsal', 'toggleDorsal', '固定背鳍'));
         document.getElementById('resetAll').addEventListener('click', resetAllFins);
         document.getElementById('show-conclusion').addEventListener('click', () => conclusionModal.style.display = 'block');
         document.getElementById('close-conclusion').addEventListener('click', () => conclusionModal.style.display = 'none');
@@ -158,7 +170,6 @@
             
             loader.load(url, (gltf) => {
                 if (fishModel) scene.remove(fishModel);
-                finGroups = { tail: [], pectoral: [], dorsal: [] };
                 customFishParts = { body: null, tail: null, pectoralLeft: null, pectoralRight: null, dorsal: null };
 
                 fishModel = gltf.scene;
@@ -168,21 +179,11 @@
 
                 const box = new THREE.Box3().setFromObject(fishModel);
                 const size = box.getSize(new THREE.Vector3());
-                const scale = 5 / Math.max(size.x, size.y, size.z);
+                const scale = 200 / Math.max(size.x, size.y, size.z); 
                 fishModel.scale.set(scale, scale, scale);
                 fishModel.position.set(0, -1, -20);
 
-                const detectedFins = [];
-                if (finGroups.tail.length > 0) detectedFins.push('尾鳍');
-                if (finGroups.pectoral.length > 0) detectedFins.push('胸鳍');
-                if (finGroups.dorsal.length > 0) detectedFins.push('背鳍');
-                
-                if (detectedFins.length > 0) {
-                    statusDiv.textContent = `模型 "${fileName}" 加载成功！已识别鱼鳍：${detectedFins.join('、')}`;
-                } else {
-                    statusDiv.textContent = `模型 "${fileName}" 加载成功！未识别到鱼鳍部件`;
-                }
-
+                statusDiv.textContent = `模型 "${fileName}" 加载成功！`;
                 document.querySelectorAll('.fin-btn').forEach(btn => btn.disabled = false);
                 updateAnimationParams();
 
@@ -213,9 +214,6 @@
                     for (const [part, keywords] of Object.entries(partNames)) {
                         if (keywords.some(keyword => name.includes(keyword))) {
                             customFishParts[part] = child;
-                            if (part.includes('tail')) finGroups.tail.push(child);
-                            if (part.includes('pectoral')) finGroups.pectoral.push(child);
-                            if (part.includes('dorsal')) finGroups.dorsal.push(child);
                             break;
                         }
                     }
@@ -229,41 +227,77 @@
             }
         }
 
+        // 切换鱼鳍固定/松开状态
         function toggleFin(type, btnId, text) {
-            finStates[type] = !finStates[type];
-            if (finGroups[type].length > 0) {
-                finGroups[type].forEach(fin => {
-                    fin.visible = finStates[type];
-                    if (finStates[type]) {
-                        // 恢复鱼鳍时添加过渡动画
-                        fin.scale.set(0, 0, 0);
-                        setTimeout(() => {
-                            fin.scale.set(1, 1, 1);
-                        }, 50);
+            const wasFixed = finStates[type]; // 记录切换前的状态
+            finStates[type] = !wasFixed; // 切换状态
+
+            if (wasFixed) {
+                // --- 主要修改点：松开鱼鳍时，重置鱼的旋转角度 ---
+                if (fishModel) {
+                    fishModel.rotation.set(0, fishModel.rotation.y, 0); // 重置俯仰和翻滚，保持航向
+                }
+                // 松开鱼鳍：恢复活动，恢复颜色
+                if (customFishParts[type]) {
+                    customFishParts[type].material.color.set(0xffffff);
+                    delete customFishParts[type].userData.fixedRotation;
+                }
+                if (type === 'pectoral') {
+                    if (customFishParts.pectoralLeft) {
+                        customFishParts.pectoralLeft.material.color.set(0xffffff);
+                        delete customFishParts.pectoralLeft.userData.fixedRotation;
                     }
-                });
-                statusDiv.textContent = `${finStates[type] ? '显示' : '隐藏'}${text.replace('隐藏', '')}`;
-                finTips[type].style.display = finStates[type] ? 'none' : 'block';
+                    if (customFishParts.pectoralRight) {
+                        customFishParts.pectoralRight.material.color.set(0xffffff);
+                        delete customFishParts.pectoralRight.userData.fixedRotation;
+                    }
+                }
+                statusDiv.textContent = `已松开${text.replace('固定', '')}`;
+                finTips[type].style.display = 'none';
             } else {
-                statusDiv.textContent = `未识别到"${text.replace('隐藏', '')}"`;
+                // 固定鱼鳍：停止活动，添加视觉效果
+                if (customFishParts[type]) {
+                    customFishParts[type].material.color.set(0x888888);
+                    customFishParts[type].userData.fixedRotation = customFishParts[type].rotation.clone();
+                }
+                if (type === 'pectoral') {
+                    if (customFishParts.pectoralLeft) {
+                        customFishParts.pectoralLeft.material.color.set(0x888888);
+                        customFishParts.pectoralLeft.userData.fixedRotation = customFishParts.pectoralLeft.rotation.clone();
+                    }
+                    if (customFishParts.pectoralRight) {
+                        customFishParts.pectoralRight.material.color.set(0x888888);
+                        customFishParts.pectoralRight.userData.fixedRotation = customFishParts.pectoralRight.rotation.clone();
+                    }
+                }
+                statusDiv.textContent = `已固定${text.replace('固定', '')}`;
+                finTips[type].style.display = 'block';
             }
+            
             updateButton(btnId, text, finStates[type]);
             updateAnimationParams();
         }
         
+        // 重置所有鱼鳍（全部松开，恢复正常）
         function resetAllFins() {
             for (const type in finStates) {
-                finStates[type] = true;
-                if (finGroups[type]) {
-                    finGroups[type].forEach(fin => {
-                        fin.visible = true;
-                        if (fin.userData.originalRotation) {
-                            fin.rotation.copy(fin.userData.originalRotation);
-                        }
-                        if (fin.userData.originalPosition) {
-                            fin.position.copy(fin.userData.originalPosition);
-                        }
-                    });
+                finStates[type] = false; // 所有鱼鳍设为松开状态
+                if (customFishParts[type]) {
+                    customFishParts[type].material.color.set(0xffffff); // 恢复颜色
+                    customFishParts[type].rotation.copy(customFishParts[type].userData.originalRotation); // 恢复初始旋转角度
+                    delete customFishParts[type].userData.fixedRotation; // 删除固定状态记录
+                }
+                if (type === 'pectoral') {
+                    if (customFishParts.pectoralLeft) {
+                        customFishParts.pectoralLeft.material.color.set(0xffffff);
+                        customFishParts.pectoralLeft.rotation.copy(customFishParts.pectoralLeft.userData.originalRotation);
+                        delete customFishParts.pectoralLeft.userData.fixedRotation;
+                    }
+                    if (customFishParts.pectoralRight) {
+                        customFishParts.pectoralRight.material.color.set(0xffffff);
+                        customFishParts.pectoralRight.rotation.copy(customFishParts.pectoralRight.userData.originalRotation);
+                        delete customFishParts.pectoralRight.userData.fixedRotation;
+                    }
                 }
                 finTips[type].style.display = 'none';
             }
@@ -280,31 +314,41 @@
                 };
             }
             
-            document.getElementById('toggleTail').textContent = '隐藏尾鳍';
-            document.getElementById('togglePectoral').textContent = '隐藏胸鳍';
-            document.getElementById('toggleDorsal').textContent = '隐藏背鳍';
+            document.getElementById('toggleTail').textContent = '固定尾鳍';
+            document.getElementById('togglePectoral').textContent = '固定胸鳍';
+            document.getElementById('toggleDorsal').textContent = '固定背鳍';
             document.querySelectorAll('.fin-btn').forEach(btn => btn.classList.remove('active'));
             
-            statusDiv.textContent = "所有鱼鳍已重置";
+            statusDiv.textContent = "所有鱼鳍已重置（恢复正常活动）";
         }
 
-        function updateButton(btnId, text, isVisible) {
+        // 更新按钮文字和样式
+        function updateButton(btnId, text, isFixed) {
             const btn = document.getElementById(btnId);
-            btn.textContent = isVisible ? text : text.replace('隐藏', '显示');
-            btn.classList.toggle('active', !isVisible);
+            if (isFixed) {
+                btn.textContent = text.replace('固定', '松开');
+                btn.classList.add('active');
+            } else {
+                btn.textContent = text;
+                btn.classList.remove('active');
+            }
         }
         
+        // 根据鱼鳍固定状态更新动画参数
         function updateAnimationParams() {
-            animationParams.speed = finStates.tail ? 1 : 0.1;
-            animationParams.struggleIntensity = finStates.tail ? 0 : 0.08;
-            animationParams.turnAmount = finStates.pectoral ? 0.2 : 0.05;
-            animationParams.shakeIntensity = finStates.pectoral ? 0 : 0.2;
-            animationParams.rollIntensity = finStates.dorsal ? 0 : 0.4;
+            animationParams.speed = finStates.tail ? 0.1 : 1;
+            animationParams.struggleIntensity = finStates.tail ? 0.08 : 0;
+            
+            animationParams.turnAmount = finStates.pectoral ? 0.05 : 0.2;
+            animationParams.shakeIntensity = finStates.pectoral ? 0.2 : 0;
+            
+            animationParams.rollIntensity = finStates.dorsal ? 0.4 : 0;
         }
         
+        // 更新鱼鳍提示框位置
         function updateFinTips() {
             for (const type in finTips) {
-                if (!finStates[type] && fishModel) {
+                if (finStates[type] && fishModel) {
                     const tip = finTips[type];
                     const vector = new THREE.Vector3(fishModel.position.x, fishModel.position.y + 2, fishModel.position.z);
                     vector.project(camera);
@@ -318,45 +362,59 @@
             }
         }
 
+        // 动画循环：处理鱼的游动和鱼鳍固定逻辑
         function animate() {
             requestAnimationFrame(animate);
             
             if (fishModel) {
                 const time = Date.now() * 0.001;
                 
-                fishModel.position.z += 0.015 * animationParams.speed;
+                fishModel.position.z += 0.025 * animationParams.speed;
 
                 const baseSwing = Math.sin(time * 8) * 0.05;
-                
                 if (customFishParts.body) {
                     customFishParts.body.rotation.y = baseSwing * animationParams.speed;
                 }
 
-                if (customFishParts.tail && finStates.tail && customFishParts.tail.visible) {
+                // 尾鳍动画
+                if (customFishParts.tail && !finStates.tail) {
                     customFishParts.tail.rotation.y = Math.sin(time * 10) * 0.3 * animationParams.speed;
+                } else if (customFishParts.tail && finStates.tail) {
+                    customFishParts.tail.rotation.copy(customFishParts.tail.userData.fixedRotation);
                 }
 
-                if (customFishParts.pectoralLeft && finStates.pectoral && customFishParts.pectoralLeft.visible) {
+                // 胸鳍动画
+                if (customFishParts.pectoralLeft && !finStates.pectoral) {
                     customFishParts.pectoralLeft.rotation.x = Math.sin(time * -7 + Math.PI/2) * 0.2;
+                } else if (customFishParts.pectoralLeft && finStates.pectoral) {
+                    customFishParts.pectoralLeft.rotation.copy(customFishParts.pectoralLeft.userData.fixedRotation);
                 }
-                if (customFishParts.pectoralRight && finStates.pectoral && customFishParts.pectoralRight.visible) {
+                
+                if (customFishParts.pectoralRight && !finStates.pectoral) {
                     customFishParts.pectoralRight.rotation.x = Math.sin(time * -7 - Math.PI/2) * 0.2;
+                } else if (customFishParts.pectoralRight && finStates.pectoral) {
+                    customFishParts.pectoralRight.rotation.copy(customFishParts.pectoralRight.userData.fixedRotation);
                 }
-                
-                if (customFishParts.dorsal && finStates.dorsal && customFishParts.dorsal.visible) {
+
+                // 背鳍动画
+                if (customFishParts.dorsal && !finStates.dorsal) {
                     customFishParts.dorsal.rotation.z = Math.sin(time * 5) * 0.05;
+                } else if (customFishParts.dorsal && finStates.dorsal) {
+                    customFishParts.dorsal.rotation.copy(customFishParts.dorsal.userData.fixedRotation);
                 }
                 
-                if (animationParams.struggleIntensity > 0 && !finStates.tail) {
+                // 异常状态动画
+                if (animationParams.struggleIntensity > 0 && finStates.tail) {
                     fishModel.rotation.y += (Math.random() - 0.5) * animationParams.struggleIntensity;
                 }
-                if (animationParams.shakeIntensity > 0 && !finStates.pectoral) {
+                if (animationParams.shakeIntensity > 0 && finStates.pectoral) {
                     fishModel.rotation.z += (Math.random() - 0.5) * animationParams.shakeIntensity;
                 }
-                if (animationParams.rollIntensity > 0 && !finStates.dorsal) {
+                if (animationParams.rollIntensity > 0 && finStates.dorsal) {
                     fishModel.rotation.x = Math.sin(time * 0.4) * animationParams.rollIntensity;
                 }
                 
+                // 鱼游出屏幕后重置位置
                 if (fishModel.position.z > 20) {
                     fishModel.position.z = -20;
                     fishModel.position.x = (Math.random() - 0.5) * 5;
@@ -377,6 +435,7 @@
         }
         animate();
 
+        // 窗口大小适配
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
