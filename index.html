@@ -180,7 +180,7 @@
 
                 const box = new THREE.Box3().setFromObject(fishModel);
                 const size = box.getSize(new THREE.Vector3());
-                const scale = 200 / Math.max(size.x, size.y, size.z); 
+                const scale = 10 / Math.max(size.x, size.y, size.z); 
                 fishModel.scale.set(scale, scale, scale);
                 fishModel.position.set(0, -1, -20);
 
@@ -336,18 +336,18 @@
             }
         }
         
-        // 根据鱼鳍固定状态更新动画参数
+        // --- 主要修改点：修正了胸鳍和背鳍的动画参数 ---
         function updateAnimationParams() {
             // 尾鳍控制速度
             animationParams.speed = finStates.tail ? 0.1 : 1;
             animationParams.struggleIntensity = finStates.tail ? 0.08 : 0;
             
-            // 胸鳍控制平衡
+            // 胸鳍控制左右摇晃 (shake)
             animationParams.turnAmount = finStates.pectoral ? 0.05 : 0.2;
             animationParams.shakeIntensity = finStates.pectoral ? 0.2 : 0;
             
-            // 背鳍控制翻滚
-            animationParams.rollIntensity = finStates.dorsal ? 0.5 : 0;
+            // 背鳍控制翻滚 (roll)
+            animationParams.rollIntensity = finStates.dorsal ? 0.4 : 0;
         }
         
         // 更新鱼鳍提示框位置
@@ -375,8 +375,7 @@
                 const time = Date.now() * 0.001;
                 
                 // 控制鱼的游动速度
-                // 0.015 是基础速度，可以直接修改它来调整整体游速
-                fishModel.position.z += 0.025 * animationParams.speed;
+                fishModel.position.z += 0.015 * animationParams.speed;
 
                 // 身体摆动（基础动画）
                 const baseSwing = Math.sin(time * 8) * 0.05;
@@ -415,9 +414,11 @@
                 if (animationParams.struggleIntensity > 0 && finStates.tail) {
                     fishModel.rotation.y += (Math.random() - 0.5) * animationParams.struggleIntensity;
                 }
+                // 胸鳍固定时，左右摇晃 (绕Z轴)
                 if (animationParams.shakeIntensity > 0 && finStates.pectoral) {
                     fishModel.rotation.z += (Math.random() - 0.5) * animationParams.shakeIntensity;
                 }
+                // 背鳍固定时，身体翻滚 (绕X轴)
                 if (animationParams.rollIntensity > 0 && finStates.dorsal) {
                     fishModel.rotation.x = Math.sin(time * 0.4) * animationParams.rollIntensity;
                 }
