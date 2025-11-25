@@ -70,7 +70,8 @@
         if (!document.body.contains(vrButton)) document.body.appendChild(vrButton);
         
         const controls = new OrbitControls(camera, renderer.domElement);
-        camera.position.set(0, 5, 20);
+        camera.position.set(15, 10, 15); // 斜45度角视角
+        camera.lookAt(0, -5, 0); // 朝向鱼缸中心
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.enablePan = false;
@@ -139,7 +140,7 @@
         document.getElementById('show-conclusion').addEventListener('click', () => conclusionModal.style.display = 'block');
         document.getElementById('close-conclusion').addEventListener('click', () => conclusionModal.style.display = 'none');
 
-        // 自动加载阿里云鱼模型（取消本地上传）
+        // 自动加载阿里云鱼模型
         const aliyunFishModelUrl = 'https://shengwu1909.oss-cn-shenzhen.aliyuncs.com/fish1.glb';
         initLoadAliyunModel(aliyunFishModelUrl);
 
@@ -268,97 +269,77 @@
         }
         
         /**
-         * 边界检查（优化版）
+         * 边界检查
          */
         function checkBoundary() {
             const pos = fishContainer.position;
             let hasCollision = false;
-            const collisionNormal = new THREE.Vector3(); // 用于存储碰撞法线（碰撞方向）
+            const collisionNormal = new THREE.Vector3();
 
-            // 检查X轴边界 (左右)
             if (pos.x < boundaryMin.x) {
                 pos.x = boundaryMin.x + 1;
                 velocity.x *= -0.5;
-                collisionNormal.x = 1; // 碰撞来自左侧，法线方向向右
+                collisionNormal.x = 1;
                 hasCollision = true;
             } else if (pos.x > boundaryMax.x) {
                 pos.x = boundaryMax.x - 1;
                 velocity.x *= -0.5;
-                collisionNormal.x = -1; // 碰撞来自右侧，法线方向向左
+                collisionNormal.x = -1;
                 hasCollision = true;
             }
 
-            // 检查Y轴边界 (上下)
             if (pos.y < boundaryMin.y) {
                 pos.y = boundaryMin.y + 1;
                 velocity.y *= -0.5;
-                collisionNormal.y = 1; // 碰撞来自下方，法线方向向上
+                collisionNormal.y = 1;
                 hasCollision = true;
             } else if (pos.y > boundaryMax.y) {
                 pos.y = boundaryMax.y - 1;
                 velocity.y *= -0.5;
-                collisionNormal.y = -1; // 碰撞来自上方，法线方向向下
+                collisionNormal.y = -1;
                 hasCollision = true;
             }
 
-            // 检查Z轴边界 (前后)
             if (pos.z < boundaryMin.z) {
                 pos.z = boundaryMin.z + 1;
                 velocity.z *= -0.5;
-                collisionNormal.z = 1; // 碰撞来自后方，法线方向向前
+                collisionNormal.z = 1;
                 hasCollision = true;
             } else if (pos.z > boundaryMax.z) {
                 pos.z = boundaryMax.z - 1;
                 velocity.z *= -0.5;
-                collisionNormal.z = -1; // 碰撞来自前方，法线方向向后
+                collisionNormal.z = -1;
                 hasCollision = true;
             }
 
             if (hasCollision && velocity.length() > 0.01) {
-                // --- 核心优化逻辑开始 ---
-                
-                // 1. 获取鱼当前的朝向
                 const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(fishContainer.rotation);
 
-                // 2. 如果胸鳍可用，执行原来的快速掉头逻辑
                 if (finStates.pectoral) {
                     const lookAtVector = velocity.clone().normalize();
                     fishContainer.lookAt(pos.x + lookAtVector.x, pos.y + lookAtVector.y, pos.z + lookAtVector.z);
-                    angularVelocity.set(0, 0, 0); // 重置旋转速度
-                } 
-                // 3. 如果胸鳍禁用，执行新的“笨拙”反弹逻辑
-                else {
-                    // 计算一个与碰撞方向相关，但又不完全相反的目标方向
+                    angularVelocity.set(0, 0, 0);
+                } else {
                     collisionNormal.normalize();
                     const reflectionDir = forwardDir.clone().reflect(collisionNormal);
-
-                    // 只在水平面上（XZ平面）进行转向，避免不必要的上下翻滚
                     reflectionDir.y = 0;
                     reflectionDir.normalize();
-
-                    // 计算目标旋转
                     const targetRotation = new THREE.Euler().setFromQuaternion(
                         new THREE.Quaternion().setFromUnitVectors(forwardDir, reflectionDir)
                     );
-
-                    // 插值计算旋转，使其平滑地转向目标方向，而不是瞬间完成
-                    const blendFactor = 0.2; // 控制转向的"生硬"程度，值越小越慢
+                    const blendFactor = 0.2;
                     fishContainer.rotation.y = THREE.MathUtils.lerp(fishContainer.rotation.y, targetRotation.y, blendFactor);
-                    
-                    // 给一个小的旋转力矩，让它在撞到后有一个"摇头晃脑"的效果
-                    angularVelocity.y = collisionNormal.x * 0.05; 
+                    angularVelocity.y = collisionNormal.x * 0.05;
                 }
-                // --- 核心优化逻辑结束 ---
             }
         }
         
         /**
-         * 更新物理模拟（支持上浮下潜、减慢游速、稳定姿态）
+         * 更新物理模拟（浮潜时间拉长30倍）
          */
         function updatePhysics() {
             const pos = fishContainer.position;
 
-            // 平滑边界转向逻辑
             if (finStates.pectoral) {
                 let targetRotationY = fishContainer.rotation.y;
 
@@ -397,25 +378,30 @@
                 velocity.add(thrustForce);
             }
 
-            // 浮力重力模拟（减弱浮力，支持大范围浮沉）
+            // --- 浮沉模拟极限拉长 ---
+            // 1. 浮力强度降低到原来的1/10
             const targetDepth = -boundary.y / 2;
             const depthError = pos.y - targetDepth;
-            const buoyancy = -depthError * 0.001;
-            const gravity = -0.0002;
+            const buoyancy = -depthError * 0.00005; // 浮力强度降低（从0.0005改为0.00005）
+            
+            // 2. 重力强度降低到原来的1/10
+            const gravity = -0.00001; // 重力强度降低（从0.0001改为0.00001）
+            
             velocity.y += buoyancy + gravity;
 
-            // 胸鳍控制垂直姿态（调整灵敏度，减少抖动）
+            // 3. 胸鳍对垂直姿态的控制灵敏度降低到原来的1/10
             if (finStates.pectoral) {
                 let turnTorque = (Math.random() - 0.5) * 0.001;
                 angularVelocity.y += turnTorque;
                 
                 if (Math.abs(velocity.y) > 0.005) {
-                    angularVelocity.x -= velocity.y * 0.05;
+                    angularVelocity.x -= velocity.y * 0.003; // 垂直控制灵敏度降低（从0.03改为0.003）
                 }
             } else {
                 angularVelocity.y *= 0.85;
                 angularVelocity.x *= 0.9;
             }
+            // --- 浮沉模拟极限拉长结束 ---
 
             // 背鳍增强稳定效果
             if (finStates.dorsal) {
