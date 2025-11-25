@@ -268,32 +268,87 @@
         }
         
         /**
-         * 边界检查
+         * 边界检查（优化版）
          */
         function checkBoundary() {
             const pos = fishContainer.position;
             let hasCollision = false;
+            const collisionNormal = new THREE.Vector3(); // 用于存储碰撞法线（碰撞方向）
 
-            if (pos.x < boundaryMin.x || pos.x > boundaryMax.x) {
-                pos.x = THREE.MathUtils.clamp(pos.x, boundaryMin.x + 1, boundaryMax.x - 1);
+            // 检查X轴边界 (左右)
+            if (pos.x < boundaryMin.x) {
+                pos.x = boundaryMin.x + 1;
                 velocity.x *= -0.5;
+                collisionNormal.x = 1; // 碰撞来自左侧，法线方向向右
+                hasCollision = true;
+            } else if (pos.x > boundaryMax.x) {
+                pos.x = boundaryMax.x - 1;
+                velocity.x *= -0.5;
+                collisionNormal.x = -1; // 碰撞来自右侧，法线方向向左
                 hasCollision = true;
             }
-            if (pos.y < boundaryMin.y || pos.y > boundaryMax.y) {
-                pos.y = THREE.MathUtils.clamp(pos.y, boundaryMin.y + 1, boundaryMax.y - 1);
+
+            // 检查Y轴边界 (上下)
+            if (pos.y < boundaryMin.y) {
+                pos.y = boundaryMin.y + 1;
                 velocity.y *= -0.5;
+                collisionNormal.y = 1; // 碰撞来自下方，法线方向向上
+                hasCollision = true;
+            } else if (pos.y > boundaryMax.y) {
+                pos.y = boundaryMax.y - 1;
+                velocity.y *= -0.5;
+                collisionNormal.y = -1; // 碰撞来自上方，法线方向向下
                 hasCollision = true;
             }
-            if (pos.z < boundaryMin.z || pos.z > boundaryMax.z) {
-                pos.z = THREE.MathUtils.clamp(pos.z, boundaryMin.z + 1, boundaryMax.z - 1);
+
+            // 检查Z轴边界 (前后)
+            if (pos.z < boundaryMin.z) {
+                pos.z = boundaryMin.z + 1;
                 velocity.z *= -0.5;
+                collisionNormal.z = 1; // 碰撞来自后方，法线方向向前
+                hasCollision = true;
+            } else if (pos.z > boundaryMax.z) {
+                pos.z = boundaryMax.z - 1;
+                velocity.z *= -0.5;
+                collisionNormal.z = -1; // 碰撞来自前方，法线方向向后
                 hasCollision = true;
             }
 
             if (hasCollision && velocity.length() > 0.01) {
-                const lookAtVector = velocity.clone().normalize();
-                fishContainer.lookAt(pos.x + lookAtVector.x, pos.y + lookAtVector.y, pos.z + lookAtVector.z);
-                angularVelocity.set(0, 0, 0);
+                // --- 核心优化逻辑开始 ---
+                
+                // 1. 获取鱼当前的朝向
+                const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(fishContainer.rotation);
+
+                // 2. 如果胸鳍可用，执行原来的快速掉头逻辑
+                if (finStates.pectoral) {
+                    const lookAtVector = velocity.clone().normalize();
+                    fishContainer.lookAt(pos.x + lookAtVector.x, pos.y + lookAtVector.y, pos.z + lookAtVector.z);
+                    angularVelocity.set(0, 0, 0); // 重置旋转速度
+                } 
+                // 3. 如果胸鳍禁用，执行新的“笨拙”反弹逻辑
+                else {
+                    // 计算一个与碰撞方向相关，但又不完全相反的目标方向
+                    collisionNormal.normalize();
+                    const reflectionDir = forwardDir.clone().reflect(collisionNormal);
+
+                    // 只在水平面上（XZ平面）进行转向，避免不必要的上下翻滚
+                    reflectionDir.y = 0;
+                    reflectionDir.normalize();
+
+                    // 计算目标旋转
+                    const targetRotation = new THREE.Euler().setFromQuaternion(
+                        new THREE.Quaternion().setFromUnitVectors(forwardDir, reflectionDir)
+                    );
+
+                    // 插值计算旋转，使其平滑地转向目标方向，而不是瞬间完成
+                    const blendFactor = 0.2; // 控制转向的"生硬"程度，值越小越慢
+                    fishContainer.rotation.y = THREE.MathUtils.lerp(fishContainer.rotation.y, targetRotation.y, blendFactor);
+                    
+                    // 给一个小的旋转力矩，让它在撞到后有一个"摇头晃脑"的效果
+                    angularVelocity.y = collisionNormal.x * 0.05; 
+                }
+                // --- 核心优化逻辑结束 ---
             }
         }
         
